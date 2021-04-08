@@ -1,0 +1,95 @@
+
+
+```{r}
+
+# Disable scientific notations for numbers (1e5 for example should be displayed as 100000)
+options(scipen = 999)
+
+# Define basic paths
+path_scripts <- "../scripts_r/"
+path_data <- "../data/"
+
+
+# Load scripts
+source(paste0(path_scripts, "load_packages.R"))
+
+
+# Load dataset
+list.files(path_data)
+data <- read.csv(paste0(path_data, "winemag-data-130k-v2.csv"))
+
+
+```
+
+
+```{r}
+
+# Let's explore data dimensions
+cat('\n\n\nDataset dimensions:\n')
+cat(paste0("Rows: ", dim(data)[1], "\n"))
+cat(paste0("Columns: ", dim(data)[2], "\n"))
+
+# NULL values (total & for each column)
+cat(paste0("\nNULL values count: ", sum(is.na(data)), "\n"))
+cat("\nNULL values on each column:\n")
+sapply(data, function(col) sum(is.na(col)))
+
+# Print small data summary
+cat('\nSummary:\n')
+data %>% summary()
+data %>% glimpse()
+
+# Also extract columns data types by applying the "class" function on each column
+cat('\n\n\nColumns data types:\n')
+sapply(data, class)
+
+
+
+```
+
+```{r}
+
+# Explore our two main numerical variables (points & price)
+
+# Wine prices
+# Long range of prices, but concentrated on the lower pricing tier
+wines_price_distribution <- data %>% 
+  ggplot(aes(x = price)) +
+  geom_histogram(aes(y = ..density..), fill = 'red', colour = 'darkred', bins = 100) +
+  geom_vline(aes(xintercept = mean(points)), color = "darkblue", linetype="dashed", size = 1) + 
+  theme_minimal() +
+  labs(title = 'Wines Price Distribution - Price & Probability + Mean', x = 'X = Price', y = 'Y = Probability')
+
+ggplotly(wines_price_distribution)
+
+# Wine points
+# Integers, between 80 and 100
+wines_points_distribution <- data %>% 
+  ggplot(aes(x = points)) +
+  geom_histogram(aes(y = ..density..), fill = 'lightblue', colour = "darkblue", bins = 21, template = "seaborn") +
+  geom_vline(aes(xintercept = mean(points)), color = "darkred", linetype="dashed", size = 1) + 
+  theme_minimal() +
+  labs(title = 'Wines Points Distribution - Points & Probability + Mean', x = 'X = Points', y = 'Y = Probability')
+
+ggplotly(wines_points_distribution)
+    
+
+```
+
+```{r}
+
+# Explore countries and regions
+
+country_names <- Corpus(VectorSource(tolower(data$country)))
+country_names_frequencies = as.data.frame(as.matrix(DocumentTermMatrix(country_names, control = list(wordLengths = c(2, Inf)))))
+
+countries <- colnames(country_names_frequencies)
+frequencies <- colSums(country_names_frequencies)
+
+countries_frequencies <- data.frame(countries, frequencies)
+
+wordcloud2(countries_frequencies, color = "random-dark", backgroundColor = "white")
+
+
+```
+

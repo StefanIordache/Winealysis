@@ -9,6 +9,8 @@ pkg <- c("readr",
          "treemap",
          "tm",
          "wordcloud",
-         "RColorBrewer")
+         "wordcloud2",
+         "RColorBrewer",
+         "maps")
 
 lapply(pkg, require, character.only = TRUE)
