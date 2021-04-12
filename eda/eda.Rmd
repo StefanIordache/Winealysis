@@ -1,6 +1,9 @@
 
+# Winealysis - Exploring the world of good wines
 
-```{r}
+### 1. Import required libraries & load dataset
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 
 # Disable scientific notations for numbers (1e5 for example should be displayed as 100000)
 options(scipen = 999)
@@ -22,25 +25,27 @@ data <- read.csv(paste0(path_data, "winemag-data-130k-v2.csv"))
 ```
 
 
+### 2. Dataset quick summary (counts, summary, data types, structure)
+
 ```{r}
 
 # Let's explore data dimensions
-cat('\n\n\nDataset dimensions:\n')
+cat('Dataset dimensions:\n')
 cat(paste0("Rows: ", dim(data)[1], "\n"))
 cat(paste0("Columns: ", dim(data)[2], "\n"))
 
 # NULL values (total & for each column)
-cat(paste0("\nNULL values count: ", sum(is.na(data)), "\n"))
-cat("\nNULL values on each column:\n")
+cat(paste0("NULL values count: ", sum(is.na(data)), "\n"))
+cat("NULL values on each column:\n")
 sapply(data, function(col) sum(is.na(col)))
 
 # Print small data summary
-cat('\nSummary:\n')
+cat('Summary:\n')
 data %>% summary()
 data %>% glimpse()
 
 # Also extract columns data types by applying the "class" function on each column
-cat('\n\n\nColumns data types:\n')
+cat('Columns data types:\n')
 sapply(data, class)
 
 
@@ -80,6 +85,7 @@ ggplotly(wines_points_distribution)
 
 # Explore countries and regions
 
+# Countries wordcloud - interactive with mouse hover
 country_names <- Corpus(VectorSource(tolower(data$country)))
 country_names_frequencies = as.data.frame(as.matrix(DocumentTermMatrix(country_names, control = list(wordLengths = c(2, Inf)))))
 
@@ -88,8 +94,55 @@ frequencies <- colSums(country_names_frequencies)
 
 countries_frequencies <- data.frame(countries, frequencies)
 
-wordcloud2(countries_frequencies, color = "random-dark", backgroundColor = "white")
+wordcloud2(countries_frequencies, backgroundColor = "white", minRotation = -pi/2, maxRotation = -pi/2, size = 1.5)
 
+# Regions wordcloud - interactive with mouse hover
+region_names <- Corpus(VectorSource(tolower(data$region_1)))
+region_names_frequencies = as.data.frame(as.matrix(DocumentTermMatrix(region_names, control = list(wordLengths = c(2, Inf)))))
+
+regions <- colnames(region_names_frequencies)
+frequencies <- colSums(region_names_frequencies)
+
+regions_frequencies <- data.frame(regions, frequencies)
+
+wordcloud2(regions_frequencies, backgroundColor = "white", minRotation = -pi/2, maxRotation = -pi/2, size = 3.5)
+
+
+```
+
+```{r}
+
+
+# Display average number of points for each country
+
+points_by_country_data = data %>%
+  group_by(country) %>% 
+  summarise(n = n(), avg_points = mean(points))  
+              
+# US should be replaced with USA
+points_by_country_data$country <- recode(points_by_country_data$country, !!!list('US' = 'USA'))
+
+worldmap_init = map_data("world")
+
+points_by_country_data <- merge(x = worldmap_init, 
+                                y = points_by_country_data,
+                                by.x = "region",
+                                by.y = "country", 
+                                all.x = TRUE) %>% arrange(desc(order))
+
+map_plot <- ggplot(data = points_by_country_data,
+                   aes(x = long, 
+                       y = lat, 
+                       group = group,
+                       color = region)) +
+  scale_fill_viridis_c(option = "plasma")+
+  theme_minimal()+               
+  geom_polygon(aes(fill = avg_points)) +
+  labs(fill='Average nr. of points')+
+  theme(legend.position = 'none')              
+              
+
+ggplotly(map_plot)
 
 ```
 
