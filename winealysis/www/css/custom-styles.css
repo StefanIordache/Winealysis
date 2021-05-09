@@ -28,3 +28,7 @@
 .sidebar-collapse .logo a {
  display: none;
 }
+
+hr {
+  border-top: 1px solid #000000;
+}
