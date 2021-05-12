@@ -225,7 +225,7 @@ server <- function(input, output) {
         top_10_countries_data <- top_10_countries()
         
         countries_prices_boxplot = dataset() %>% 
-            filter(country %in% head(top_10_countries_data$country,10), price <= 200) %>%
+            filter(country %in% head(top_10_countries_data$country, 10), price <= 300) %>%
             ggplot(aes(x = country, y = price)) + 
             geom_boxplot(fill = "lightblue", colour = "darkblue") +
             stat_summary(fun.y = mean, geom = "point", color=I("yellow")) +
@@ -241,6 +241,76 @@ server <- function(input, output) {
             )
             
         ggplotly(countries_prices_boxplot)
+    })
+    
+    output$countries_wordcloud <- renderWordcloud2({
+
+        data <- dataset()
+
+        country_names <- Corpus(VectorSource(tolower(data$country)))
+        country_names_frequencies = as.data.frame(as.matrix(DocumentTermMatrix(country_names, control = list(wordLengths = c(2, Inf)))))
+
+        countries <- colnames(country_names_frequencies)
+        frequencies <- colSums(country_names_frequencies)
+
+        countries_frequencies <- data.frame(countries, frequencies)
+
+        countries_wordcloud <- wordcloud2(countries_frequencies, backgroundColor = "#353c42", minRotation = -pi/2, maxRotation = -pi/2, size = 1.5)
+
+        countries_wordcloud
+    })
+
+    # output$regions_wordcloud <- renderWordcloud2({
+    # 
+    #     data <- dataset()
+    # 
+    #     region_names <- Corpus(VectorSource(tolower(data$region_1)))
+    #     region_names_frequencies = as.data.frame(as.matrix(DocumentTermMatrix(region_names, control = list(wordLengths = c(2, Inf)))))
+    # 
+    #     regions <- colnames(region_names_frequencies)
+    #     frequencies <- colSums(region_names_frequencies)
+    # 
+    #     regions_frequencies <- data.frame(regions, frequencies)
+    # 
+    #     regions_wordcloud <- wordcloud2(regions_frequencies, backgroundColor = "#353c42", minRotation = -pi/2, maxRotation = -pi/2, size = 3.5)
+    # 
+    #     regions_wordcloud
+    # })
+    
+    output$points_countries_map <- renderPlotly({
+        
+        data <- dataset()
+        
+        # Display average number of points for each country
+        
+        points_by_country_data = data %>%
+            group_by(country) %>% 
+            summarise(n = n(), avg_points = mean(points))  
+        
+        # US should be replaced with USA
+        points_by_country_data$country <- recode(points_by_country_data$country, !!!list('US' = 'USA'))
+        
+        worldmap_init = map_data("world")
+        
+        points_by_country_data <- merge(x = worldmap_init, 
+                                        y = points_by_country_data,
+                                        by.x = "region",
+                                        by.y = "country", 
+                                        all.x = TRUE) %>% arrange(desc(order))
+        
+        points_countries_map <- ggplot(data = points_by_country_data,
+                                       aes(x = long, 
+                                       y = lat, 
+                                       group = group,
+                                       color = region)) +
+            scale_fill_viridis_c(option = "plasma")+
+            theme_minimal()+               
+            geom_polygon(aes(fill = avg_points)) +
+            labs(fill='Average nr. of points')+
+            theme(legend.position = 'none')              
+        
+        
+        ggplotly(points_countries_map)
     })
 }
 

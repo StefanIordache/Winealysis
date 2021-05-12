@@ -76,7 +76,7 @@ tab_dataset <- function() {
     br(),
     h3("Infographics"),
     br(),
-    h4("1. Countries exploration"),
+    h4("1. Geo exploration"),
     br(),
     fluidRow(
       column(width = 8,
@@ -108,6 +108,18 @@ tab_dataset <- function() {
                image.width = 200,
                image.height = 200,
                ui_element = list(plotlyOutput("countries_prices_boxplot"))
+             )
+      )
+    ),
+    br(),
+    fluidRow(
+      column(width = 6,
+             offset = 3,
+             shinycssloaders::withSpinner(
+               image = "media/wine-loading-animation-transparent.gif",
+               image.width = 200,
+               image.height = 200,
+               ui_element = list(wordcloud2Output("countries_wordcloud"))
              )
       )
     ),

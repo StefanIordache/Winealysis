@@ -8,8 +8,7 @@ dashboard_body <- function() {
                         href = "media/grape-wine.png")),
     tabItems(
       tab_dataset(),
-      tabItem(tabName = "world-wine-web",
-              h2("World Wine Web")),
+      tab_world_wine_web(),
       tabItem(tabName = "cheap-expensive",
               h2("Cheap or Expensive: Wine Price Prediction"))
     )
