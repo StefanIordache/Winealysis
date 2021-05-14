@@ -111,18 +111,18 @@ tab_dataset <- function() {
              )
       )
     ),
-    br(),
-    fluidRow(
-      column(width = 6,
-             offset = 3,
-             shinycssloaders::withSpinner(
-               image = "media/wine-loading-animation-transparent.gif",
-               image.width = 200,
-               image.height = 200,
-               ui_element = list(wordcloud2Output("countries_wordcloud"))
-             )
-      )
-    ),
+    # br(),
+    # fluidRow(
+    #   column(width = 6,
+    #          offset = 3,
+    #          shinycssloaders::withSpinner(
+    #            image = "media/wine-loading-animation-transparent.gif",
+    #            image.width = 200,
+    #            image.height = 200,
+    #            ui_element = list(wordcloud2Output("countries_wordcloud"))
+    #          )
+    #   )
+    # ),
     br(),
     h4("2. Tasters exploration"),
     br(),

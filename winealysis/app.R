@@ -300,22 +300,22 @@ server <- function(input, output) {
         ggplotly(countries_prices_boxplot)
     })
     
-    output$countries_wordcloud <- renderWordcloud2({
-
-        data <- dataset()
-
-        country_names <- Corpus(VectorSource(tolower(data$country)))
-        country_names_frequencies = as.data.frame(as.matrix(DocumentTermMatrix(country_names, control = list(wordLengths = c(2, Inf)))))
-
-        countries <- colnames(country_names_frequencies)
-        frequencies <- colSums(country_names_frequencies)
-
-        countries_frequencies <- data.frame(countries, frequencies)
-
-        countries_wordcloud <- wordcloud2(countries_frequencies, backgroundColor = "#353c42", minRotation = -pi/2, maxRotation = -pi/2, size = 1.5)
-
-        countries_wordcloud
-    })
+    # output$countries_wordcloud <- renderWordcloud2({
+    # 
+    #     data <- dataset()
+    # 
+    #     country_names <- Corpus(VectorSource(tolower(data$country)))
+    #     country_names_frequencies = as.data.frame(as.matrix(DocumentTermMatrix(country_names, control = list(wordLengths = c(2, Inf)))))
+    # 
+    #     countries <- colnames(country_names_frequencies)
+    #     frequencies <- colSums(country_names_frequencies)
+    # 
+    #     countries_frequencies <- data.frame(countries, frequencies)
+    # 
+    #     countries_wordcloud <- wordcloud2(countries_frequencies, backgroundColor = "#353c42", minRotation = -pi/2, maxRotation = -pi/2, size = 1.5)
+    # 
+    #     countries_wordcloud
+    # })
 
     # output$regions_wordcloud <- renderWordcloud2({
     # 
