@@ -9,8 +9,7 @@ dashboard_body <- function() {
     tabItems(
       tab_dataset(),
       tab_world_wine_web(),
-      tabItem(tabName = "cheap-expensive",
-              h2("Cheap or Expensive: Wine Price Prediction"))
+      tab_cheap_expensive()
     )
   )
   

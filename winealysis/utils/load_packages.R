@@ -11,6 +11,8 @@ pkg <- c("readr",
          "wordcloud",
          "wordcloud2",
          "RColorBrewer",
-         "maps")
+         "maps",
+         "httr",
+         "jsonlite")
 
 lapply(pkg, require, character.only = TRUE)

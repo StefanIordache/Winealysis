@@ -28,6 +28,63 @@ server <- function(input, output) {
         )
     ))
     
+    output$predicted_price <- renderText({ 
+        "Recommended price: 0 $"
+    })
+    
+    predictor_features <- read.csv("data/predictor-features.csv")
+        
+    output$predictor_selector_region <- renderUI({
+        
+        data <- predictor_features
+        
+        selectInput("region_predictor", 
+                    label = tags$span(style="color: black;", "Region"),
+                    choices = c(data[data$Region != "", ]$Region))
+    })
+    
+    output$predictor_selector_variety <- renderUI({
+        
+        data <- predictor_features
+        
+        selectInput("variety_predictor", 
+                    label = tags$span(style="color: black;", "Variety"),
+                    choices = c(data[data$Variety != "", ]$Variety))
+    })
+    
+    output$predictor_selector_score <- renderUI({
+        
+        data <- predictor_features
+        
+        selectInput("score_predictor",
+                    label = tags$span(style="color: black;", "Score"),
+                    choices = c(data[!is.na(data$Score), ]$Score))
+    })
+    
+    observeEvent(input$predict_price, {
+        
+        features_list <- integer(1147)
+        
+        features_list[which(predictor_features$Region == input$region_predictor)] <- 1
+        features_list[426 + which(predictor_features$Variety == input$variety_predictor)] <- 1
+        features_list[1127 + which(as.character(predictor_features$Score) == as.character(input$score_predictor))] <- 1
+        
+        args <-  list(features = features_list)
+        
+        res = POST("https://us-central1-third-container-310616.cloudfunctions.net/function-predict",
+                  body = toJSON(args, auto_unbox = TRUE),
+                  add_headers (
+                      "Content-Type" = "application/json"
+                  ))
+        
+        data_returned = fromJSON(rawToChar(res$content))
+        
+        output$predicted_price <- renderText({ 
+                paste0("Recommened price: ", as.character(data_returned), " $")
+            })
+    })
+    
+    
     dataset <- reactive({
         csv_dataset <- read.csv("data/winemag-130k.csv")
         
